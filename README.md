@@ -1,2 +1,3 @@
-# ml-proxy
-Proxy visual para Mercado Livre
+git clone https://github.com/rotecservices/ml-proxy.git
+cd ml-proxy
+npm install
