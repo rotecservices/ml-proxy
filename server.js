@@ -7,12 +7,15 @@ app.get('/', async (req, res) => {
   if (!url) return res.status(400).json({ error: 'URL não fornecida' });
 
   try {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
 
     // Aguarda a div principal do produto
-    await page.waitForSelector('.poly-card.poly-card--list.poly-card--large');
+    await page.waitForSelector('.poly-card.poly-card--list.poly-card--large', { timeout: 10000 });
 
     const data = await page.evaluate(() => {
       const card = document.querySelector('.poly-card.poly-card--list.poly-card--large');
@@ -40,7 +43,7 @@ app.get('/', async (req, res) => {
     await browser.close();
     res.json(data);
   } catch (err) {
-    console.error(err);
+    console.error('Erro no Puppeteer:', err);
     res.status(500).json({ error: 'Erro ao processar a página' });
   }
 });
