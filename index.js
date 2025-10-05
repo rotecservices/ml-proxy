@@ -22,14 +22,16 @@ app.get('/scrape', async (req, res) => {
       const container = document.querySelector('.ui-recommendations-list.ui-recommendations-list__container--single');
       if (!container) return { error: 'Container não encontrado' };
 
+      const product = container.querySelector('.ui-recommendations-card');
+
       return {
-        name: container.querySelector('h2')?.innerText || 'Sem nome',
-        price: container.querySelector('.price-tag-fraction')?.innerText || 'Sem preço',
-        oldPrice: container.querySelector('.price-tag-original')?.innerText || 'Sem preço anterior',
-        discount: container.querySelector('.price-tag-discount')?.innerText?.replace(/\D/g, '') || '0',
-        image: container.querySelector('img')?.src || '',
-        description: container.querySelector('[itemprop="description"]')?.innerText || '',
-        rating: '4.5' // Pode ser ajustado se houver avaliação visível
+        name: product?.querySelector('.ui-recommendations-card__title')?.innerText || 'Sem nome',
+        price: product?.querySelector('.andes-money-amount__fraction')?.innerText || 'Sem preço',
+        oldPrice: product?.querySelector('.andes-money-amount__discount')?.innerText || 'Sem preço anterior',
+        discount: product?.querySelector('.ui-recommendations-card__discount')?.innerText?.replace(/\D/g, '') || '0',
+        image: product?.querySelector('img')?.src || '',
+        description: product?.querySelector('.ui-recommendations-card__subtitle')?.innerText || '',
+        rating: '4.5' // Valor fixo ou ajustável se houver avaliações visíveis
       };
     });
 
