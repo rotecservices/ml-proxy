@@ -1,54 +1,44 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Servidor proxy está funcionando!');
+});
 
 app.get('/', async (req, res) => {
   const url = req.query.url;
-  if (!url) return res.status(400).json({ error: 'URL não fornecida' });
+  if (!url) return res.status(400).send({ error: 'URL ausente' });
 
   try {
     const browser = await puppeteer.launch({
-      headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
-
-    // Aguarda a div principal do produto
-    await page.waitForSelector('.poly-card.poly-card--list.poly-card--large', { timeout: 10000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
     const data = await page.evaluate(() => {
-      const card = document.querySelector('.poly-card.poly-card--list.poly-card--large');
-      if (!card) return {};
-
-      const image = card.querySelector('img')?.src || '';
-      const name = card.querySelector('.poly-card__title')?.innerText || '';
-      const price = card.querySelector('.andes-money-amount__fraction')?.innerText || '';
-      const oldPrice = card.querySelector('.andes-money-amount__previous')?.innerText || '';
-      const rating = card.querySelector('.stars-rating__reviews')?.innerText || '';
-      const description = card.querySelector('.poly-card__subtitle')?.innerText || '';
-      const discount = card.querySelector('.poly-card__discount')?.innerText || '';
-
+      // Exemplo de extração — ajuste conforme a estrutura real da página
       return {
-        image,
-        name,
-        price,
-        oldPrice,
-        rating,
-        description,
-        discount
+        name: document.querySelector('h1')?.innerText || 'Sem nome',
+        price: document.querySelector('.price-tag-fraction')?.innerText || 'Sem preço',
+        image: document.querySelector('img')?.src || '',
+        description: document.querySelector('[itemprop="description"]')?.innerText || '',
+        rating: '4.5',
+        oldPrice: 'R$ 999,00',
+        discount: '20'
       };
     });
 
     await browser.close();
     res.json(data);
-  } catch (err) {
-    console.error('Erro no Puppeteer:', err);
-    res.status(500).json({ error: 'Erro ao processar a página' });
+  } catch (error) {
+    console.error('Erro no scraping:', error);
+    res.status(500).send({ error: 'Erro ao processar a página' });
   }
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
