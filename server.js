@@ -7,7 +7,7 @@ app.get('/', (req, res) => {
   res.send('Servidor proxy está funcionando!');
 });
 
-app.get('/', async (req, res) => {
+app.get('/scrape', async (req, res) => {
   const url = req.query.url;
   if (!url) return res.status(400).send({ error: 'URL ausente' });
 
@@ -19,7 +19,6 @@ app.get('/', async (req, res) => {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
     const data = await page.evaluate(() => {
-      // Exemplo de extração — ajuste conforme a estrutura real da página
       return {
         name: document.querySelector('h1')?.innerText || 'Sem nome',
         price: document.querySelector('.price-tag-fraction')?.innerText || 'Sem preço',
