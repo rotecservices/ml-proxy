@@ -19,14 +19,17 @@ app.get('/scrape', async (req, res) => {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
     const data = await page.evaluate(() => {
+      const container = document.querySelector('.ui-recommendations-list.ui-recommendations-list__container--single');
+      if (!container) return { error: 'Container não encontrado' };
+
       return {
-        name: document.querySelector('h1')?.innerText || 'Sem nome',
-        price: document.querySelector('.price-tag-fraction')?.innerText || 'Sem preço',
-        image: document.querySelector('img')?.src || '',
-        description: document.querySelector('[itemprop="description"]')?.innerText || '',
-        rating: '4.5',
-        oldPrice: 'R$ 999,00',
-        discount: '20'
+        name: container.querySelector('h2')?.innerText || 'Sem nome',
+        price: container.querySelector('.price-tag-fraction')?.innerText || 'Sem preço',
+        oldPrice: container.querySelector('.price-tag-original')?.innerText || 'Sem preço anterior',
+        discount: container.querySelector('.price-tag-discount')?.innerText?.replace(/\D/g, '') || '0',
+        image: container.querySelector('img')?.src || '',
+        description: container.querySelector('[itemprop="description"]')?.innerText || '',
+        rating: '4.5' // Pode ser ajustado se houver avaliação visível
       };
     });
 
