@@ -20,9 +20,7 @@ app.get('/scrape', async (req, res) => {
 
     const data = await page.evaluate(() => {
       const container = document.querySelector('.ui-recommendations-list.ui-recommendations-list__container--single');
-      if (!container) return { error: 'Container não encontrado' };
-
-      const product = container.querySelector('.ui-recommendations-card');
+      const product = container?.querySelector('.ui-recommendations-card');
 
       return {
         name: product?.querySelector('.ui-recommendations-card__title')?.innerText || 'Sem nome',
